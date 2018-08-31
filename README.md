@@ -31,9 +31,9 @@ Structure of ARE_programs directory
 ## Notes:
 
 - To stamp date in README file: 
-'''
+```
 $ echo "$(date)" >> README.md 
-'''
+```
 
 ## Date
 
