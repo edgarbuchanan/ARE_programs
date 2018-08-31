@@ -1,12 +1,11 @@
-# Project Title
-
-Autonomous Robotics Evolution
+# Autonomous Robotics Evolution
 
 ## Author
 
 * **Edgar Buchanan** 
 
-Structure of ARE_programs directory
+## File structure
+
 - Matlab
   - Hand-coded
     "Hand-coded genotypes"
