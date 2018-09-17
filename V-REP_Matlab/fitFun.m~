@@ -1,0 +1,27 @@
+function f = fitFun(x)
+
+% Generate points
+points = GMPointsGenerator(x);
+%% Cube + density
+gran = 0.5;
+% Thershold or number of neighbours
+threshold = 0;
+% Coordinates list
+coordinates = [];
+% Limits
+rangelim = [ceil(max(points)); floor(min(points))];
+% Generate list of coordinates
+for a = rangelim(2,1)+gran:gran*2:rangelim(1,1)-gran
+    for b = rangelim(2,2)+gran:gran*2:rangelim(1,2)-gran
+        for c = rangelim(2,3)+gran:gran*2:rangelim(1,3)-gran
+            % Sum points within interval
+            pointsNeg = sum(points(:,1)>(a-gran) & points(:,1)<(a+gran) & ...
+                    (points(:,2)>(b-gran) & points(:,2)<(b+gran)) & (points(:,3)>(c-gran) & points(:,3)<(c+gran)));
+           
+        end
+    end
+end
+f = vrep();
+
+
+
