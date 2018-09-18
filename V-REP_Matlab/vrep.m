@@ -16,11 +16,11 @@ function robot_pos = vrep()
     vrep=remApi('remoteApi'); % using the prototype file (remoteApiProto.m)
     vrep.simxFinish(-1); % just in case, close all opened connections
     clientID=vrep.simxStart('127.0.0.1',19997,true,true,5000,5);
-
+    pause(2);
     if (clientID>-1)
         disp('Connected to remote API server');
         vrep.simxStartSimulation(clientID, vrep.simx_opmode_oneshot);   % Start simulation
-        pause(2);
+        pause(3);
         %% Get robot handle
         [res_Han,robot_handle] = vrep.simxGetObjectHandle(clientID, ...
             'robot_shape', vrep.simx_opmode_blocking); 
@@ -57,7 +57,6 @@ function robot_pos = vrep()
             res_jon(i) = vrep.simxSetJointTargetVelocity(clientID, ...
                 motor_handle(i), 10, vrep.simx_opmode_oneshot);
         end
-        pause(2);
         %% Debugg
         for i=1:4
             if (res_jon(i)==vrep.simx_return_ok)
@@ -67,11 +66,9 @@ function robot_pos = vrep()
             end
         end
         %% Initialize timer
-        t=clock;
-        startTime=t(6);
-        currentTime=t(6);
+        tic
         %% Run simulation for N seconds
-        while (currentTime-startTime < 5)
+        while (toc < 5)
             %% Retrieve position
             [res_object, object_pos] = vrep.simxGetObjectPosition(clientID, ...
                 robot_handle, -1, vrep.simx_opmode_blocking); % Try to retrieve the streamed data
@@ -82,8 +79,6 @@ function robot_pos = vrep()
             else
                 fprintf('Retrieve pos fail \n'); 
             end
-            t=clock;
-            currentTime=t(6);
         end
         %% Stop robot
         for i=1:4
@@ -103,7 +98,6 @@ function robot_pos = vrep()
 %             [0, 0, 0.10], vrep.simx_opmode_oneshot)
         % Before closing the connection to V-REP, make sure that the last command sent out had time to arrive. You can guarantee this with (for example):
         vrep.simxStopSimulation(clientID, vrep.simx_opmode_oneshot); % Stop simulation
-        
         vrep.simxGetPingTime(clientID);
 
         % Now close the connection to V-REP:    
