@@ -30,3 +30,4 @@ coordinates = coordinatesGenerator(points);
 figure; scatter3(coordinates(:,1),coordinates(:,2),coordinates(:,3));
 % Write CSV 
 csvwrite("Coordinates.csv", coordinates);
+csvwrite("bestSolution.csv", x);
