@@ -3,13 +3,14 @@
 %% Neuro_Evolution_of_Augmenting_Topologies - NEAT 
 %% developed by Kenneth Stanley (kstanley@cs.utexas.edu) & Risto Miikkulainen (risto@cs.utexas.edu)
 %% Coding by Christian Mayr (matlab_neat@web.de)
-
-clear;
+%% Tydy up
+clc; clear; close all;
+%%
 tic;
 %list of parameters
   
   %parameters of main file
-    maxgeneration=200; %maximum number of generations for generational loop    
+    maxgeneration=100; %maximum number of generations for generational loop    
     load_flag=0; %if set to 1, will load population, generation, innovation_record and species_record from neatsave.mat at start of algorithm, if set to 0, algorithm will start with initial population, new species record and new innovation record, at generation=1 (default option)
     save_flag=1; %if set to 1, will save population, generation, innovation_record and species_record to neatsave.mat at every generation (default option)
     % upshot of this is: the settings above will start with initial population (of your specification) and save all important structures at every generation, so if your workstation crashes or you have to interrupt evolution, you can, at next startup, simply set the load flag to 1 and continue where you have left off. 
@@ -20,7 +21,7 @@ tic;
     max_overall_fitness=[];
     
   %parameters initial population
-    population_size=150;
+    population_size=30;
     number_input_nodes=3;
     number_output_nodes=1;
     vector_connected_input_nodes=[1 2]; %vector of initially connected input nodes out of complete number of input nodes 
@@ -99,7 +100,6 @@ if load_flag==0
       new_species_flag=0;
       index_species=1;
       while assigned_existing_species_flag==0 & new_species_flag==0 %loops through the existing species, terminates when either the individual is assigned to existing species or there are no more species to test it against, which means it is a new species 
-          % Important! Edgar change for CPPN
          distance=speciation.c3*sum(abs(population(index_individual).connectiongenes(4,:)-matrix_reference_individuals(index_species,:)))/number_connections; %computes compatibility distance, abbreviated, only average weight distance considered
          if distance<speciation.threshold %If within threshold, assign to the existing species 
             population(index_individual).species=index_species;
@@ -139,7 +139,7 @@ while generation<maxgeneration & flag_solution==0
    % call evaluation function (in this case XOR), fitnesses of individuals will be stored in population(:).fitness
    % IMPORTANT reproduction assumes an (all positive!) evaluation function where a higher value means better fitness (in other words, the algorithm is geared towards maximizing a fitness function which can only assume values between 0 and +Inf) 
    
-   population=cube_experiment(population);
+   population=CPPNPointsGenerator(population);
    %population=fulladder_experiment(population);
    
    generation
@@ -190,7 +190,7 @@ while generation<maxgeneration & flag_solution==0
    for index_species=1:size(species_record,2)
       c=[c,species_record(index_species).generation_record(1:3,size(species_record(index_species).generation_record,2))];
    end
-   max_overall_fitness=[max_overall_fitness,[max(c(3,:).*(c(1,:)==generation));generation]];
+   max_overall_fitness=[max_overall_fitness,[max(c(3,:).*(c(1,:)==generation));generation;mean([population.fitness])]]; % Edgar mean added
    maximale_fitness=max(c(3,:).*(c(1,:)==generation))
    if maximale_fitness>999999 % Edgar Thereshold changed
 
@@ -209,8 +209,12 @@ while generation<maxgeneration & flag_solution==0
    plot(average_number_hidden_nodes(2,:),average_number_hidden_nodes(1,:));
    ylabel('num hidden nodes');
    subplot(2,2,3);
-   plot(max_overall_fitness(2,:),max_overall_fitness(1,:));
+   plot(max_overall_fitness(2,:), max_overall_fitness(1,:));
+   hold on;
+   plot(max_overall_fitness(2,:), max_overall_fitness(3,:));
+   hold off;
    ylabel('max fitness');
+   legend('Best fitness', 'Mean fitness');
    drawnow;   
     
      
@@ -223,9 +227,9 @@ while generation<maxgeneration & flag_solution==0
    %increment generational counter
    generation=generation+1; 
 end
-%% Eval best solution
-coordinates = eval_best_solution(best_solution);
-% Plot
-figure; scatter3(coordinates(:,1),coordinates(:,2),coordinates(:,3));
-% Write CSV 
-csvwrite("Coordinates.csv", coordinates);
+%% Evaluate best solution
+eval_best_solution(best_solution);
+%% Store resutls
+print('Performance', '-dpng');
+%%
+csvwrite('BestGenotype.csv', best_solution);

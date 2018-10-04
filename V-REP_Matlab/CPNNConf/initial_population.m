@@ -32,12 +32,11 @@ for index_individual=1:number_individuals;
    population(index_individual).nodegenes=[1:(number_input_nodes+1+number_output_nodes);
                                            ones(1,number_input_nodes),4,2*ones(1,number_output_nodes);
                                            zeros(1,number_input_nodes),1,zeros(1,number_output_nodes);
-                                           zeros(1,number_input_nodes+1+number_output_nodes);
-                                           ceil(rand(1,number_input_nodes+1+number_output_nodes).*4)]; % Edgar change for CPPN
+                                           zeros(1,number_input_nodes+1+number_output_nodes)];
    population(index_individual).connectiongenes=[1:number_connections;
                                                  connection_matrix;
                                                  rand(1,number_connections)*2-1;
-                                                 ones(1,number_connections)]; %all weights uniformly distributed in [-1 +1], all connections enabled               
+                                                 ones(1,number_connections)]; %all weights uniformly distributed in [-1 +1], all connections enabled
    population(index_individual).fitness=0;
    population(index_individual).species=0;
 end

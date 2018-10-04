@@ -6,6 +6,9 @@ function robot_pos = vrep()
     vrep.simxFinish(-1); % just in case, close all opened connections
     clientID=vrep.simxStart('127.0.0.1',19997,true,true,5000,5);
     pause(2);
+    % Open scene to prevent overload of objects
+    vrep.simxLoadScene(clientID, '../V-REP_Matlab/EvolMor.ttt', 0, vrep.simx_opmode_blocking);
+    pause(1);
     if (clientID>-1)
         disp('Connected to remote API server');
         vrep.simxStartSimulation(clientID, vrep.simx_opmode_oneshot);   % Start simulation
@@ -82,6 +85,9 @@ function robot_pos = vrep()
         % Before closing the connection to V-REP, make sure that the last command sent out had time to arrive. You can guarantee this with (for example):
         vrep.simxStopSimulation(clientID, vrep.simx_opmode_oneshot); % Stop simulation;
         vrep.simxGetPingTime(clientID);
+        % Close scene
+        vrep.simxCloseScene(clientID, vrep.simx_opmode_blocking);
+        pause(1);
         % Now close the connection to V-REP:    
         vrep.simxFinish(clientID);
     else

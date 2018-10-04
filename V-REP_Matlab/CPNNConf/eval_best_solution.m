@@ -4,7 +4,7 @@
 %% developed by Kenneth Stanley (kstanley@cs.utexas.edu) & Risto Miikkulainen (risto@cs.utexas.edu)
 %% Coding by Christian Mayr (matlab_neat@web.de)
 
-function population_plus_fitnesses=cube_experiment(population);
+function population_plus_fitnesses=eval_best_solution(population);
 population_plus_fitnesses=population;
 no_change_threshold=1e-3; %threshold to judge if state of a node has changed significantly since last iteration
 number_individuals=size(population,2);
@@ -28,16 +28,10 @@ number_individuals=size(population,2);
 %                 0;
 %                 0];
 input_pattern = [];
-output_pattern = [];
 for x = 1:10
     for y = 1:10
         for z = 1:10
             input_pattern = [input_pattern; [x y z]];
-            if(x > 0 & x < 6 & y > 0 & y < 6 & z > 0 & z < 6)
-                output_pattern = [output_pattern; 1];
-            else
-                output_pattern = [output_pattern; 0];
-            end
         end
     end
 end
@@ -56,7 +50,6 @@ for index_individual=1:number_individuals
       
       %set node output states for first timestep (depending on input states)
       population(index_individual).nodegenes(4,1:4)=population(index_individual).nodegenes(3,1:4); %Edgar
-      % Activation function = sigmoid
       population(index_individual).nodegenes(4,5:number_nodes)=1./(1+exp(-4.9*population(index_individual).nodegenes(3,5:number_nodes))); %Edgar
       no_change_count=0;     
       index_loop=0;
@@ -77,7 +70,6 @@ for index_individual=1:number_individuals
             end
          end
          %pass on node input states to outputs for next timestep 
-         % Activation function
          population(index_individual).nodegenes(4,5:number_nodes)=1./(1+exp(-4.9*population(index_individual).nodegenes(3,5:number_nodes)));          
          %Re-initialize node input states for next timestep
          population(index_individual).nodegenes(3,5:number_nodes)=0; %set all output and hidden node input states to zero
@@ -88,11 +80,10 @@ for index_individual=1:number_individuals
          population(index_individual).connectiongenes
       end
       output=[output;population(index_individual).nodegenes(4,5)];
-      individual_fitness=individual_fitness+abs(output_pattern(index_pattern,1)-population(index_individual).nodegenes(4,5)); %prevent oscillatory connections from achieving high fitness
    end
-   population_plus_fitnesses(index_individual).fitness=(1000-individual_fitness)^2; %Fitness function as defined by Kenneth Stanley    
-   if sum(abs(round(output)-output_pattern))==0      
-      population_plus_fitnesses(index_individual).fitness=1000000;
-      display(output)
-   end
+   coordinates = input_pattern(output>0.1,:); 
+   %% Write CSV 
+   csvwrite("../../V-REP_Software/Coordinates.csv", coordinates);
+    %% Return fitness from simulation
+   population_plus_fitnesses(index_individual).fitness = vrep();
 end
