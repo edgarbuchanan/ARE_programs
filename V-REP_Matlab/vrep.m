@@ -12,7 +12,7 @@ function robot_pos = vrep()
     if (clientID>-1)
         disp('Connected to remote API server');
         vrep.simxStartSimulation(clientID, vrep.simx_opmode_oneshot);   % Start simulation
-        pause(0.3); % Min 0.2
+        pause(1.0); % Min 0.2
         %% Get robot handle
         [res_Han,robot_handle] = vrep.simxGetObjectHandle(clientID, ...
             'robot_shape', vrep.simx_opmode_blocking); 
