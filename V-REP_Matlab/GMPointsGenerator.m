@@ -1,4 +1,4 @@
-function points = GMPointsGenerator(x)
+function coordinates = GMPointsGenerator(x)
 
 %% Generate points
 mu = [x(1:3);x(4:6);x(7:9)];
@@ -45,3 +45,4 @@ for a = rangelim(2,1):gran:rangelim(1,1)
     j = 2;
     i = i +1;
 end
+display(coordinates)
