@@ -1,0 +1,117 @@
+function coordinates = GMPointsGenerator(x)
+
+%% Generate points
+mu = [x(1:3);x(4:6);x(7:9)];
+sigma = cat(4,[x(10:12)],[x(13:15)],[x(16:18)]);
+gm = gmdistribution(mu,sigma);
+points = random(gm,3000);
+%% Measuring density
+% Granularity
+gran = 0.5;
+% Thershold or number of neighbours
+threshold = 2;
+% Limits
+rangelim = [ceil(max(points)); floor(min(points))];
+% Generate matrix. Overestimate
+matPrint = zeros(abs(diff(rangelim(:,1)))/gran+3, ...
+    abs(diff(rangelim(:,2)))/gran+3, abs(diff(rangelim(:,3)))/gran+3);
+%% Generate list of coordinates
+coordinates = [];
+%% Coordinates and orientations for motors
+% coordinates = [coordinates; [x(19:21)]];
+% coordinates = [coordinates; [x(22:24)]];
+coordinates = [coordinates; [nan nan nan]];
+coordinates = [coordinates; [nan nan nan]];
+% coordinates = [coordinates; [x(25:27)]];
+% coordinates = [coordinates; [x(28:30)]];
+coordinates = [coordinates; [nan nan nan]];
+coordinates = [coordinates; [nan nan nan]];
+%%
+i = 2;
+j = 2;
+k = 2;
+%scatter3(points(:,1), points(:,2), points(:,3));
+for a = rangelim(2,1):gran:rangelim(1,1)
+    for b = rangelim(2,2):gran:rangelim(1,2)
+        for c = rangelim(2,3):gran:rangelim(1,3)
+            % Count number of neighbours
+            matPrint(i,j,k) = sum(points(:,1)>(a-gran/2) & points(:,1)<(a+gran/2) & ...
+                (points(:,2)>(b-gran/2) & points(:,2)<(b+gran/2)) & (points(:,3)>(c-gran/2) & points(:,3)<(c+gran/2)));
+            % If the number of neighbours is greater than ... then
+            % register coordinates
+            if (matPrint(i,j,k)>threshold)
+                % Prevent isoleted cubes
+                if(matPrint(i+1,j,k) > threshold || matPrint(i-1,j,k) > threshold || ...
+                        matPrint(i,j+1,k) > threshold || matPrint(i,j-1,k) > threshold || ...
+                        matPrint(i,j,k+1) > threshold || matPrint(i,j,k-1) > threshold)
+                    
+                        coordinates = [coordinates; [i j k]];
+                end
+            end
+            k = k + 1;
+        end
+        k = 2;
+        j = j+ 1;
+    end
+    j = 2;
+    i = i +1;
+end
+rangeCoord = [ceil(max(coordinates))+1.0; floor(min(coordinates))-1.0];
+coordinates(1,:) = [(rangeCoord(1,1)-rangeCoord(2,1))*x(19)+rangeCoord(2,1) ...
+    (rangeCoord(1,2)-rangeCoord(2,2))*x(20)+rangeCoord(2,2) ...
+    (rangeCoord(1,3)-rangeCoord(2,3))*x(21)+rangeCoord(2,3)];
+coordinates(2,:) = [(rangeCoord(1,1)-rangeCoord(2,1))*x(22)+rangeCoord(2,1) ...
+    (rangeCoord(1,2)-rangeCoord(2,2))*x(23)+rangeCoord(2,2) ...
+    (rangeCoord(1,3)-rangeCoord(2,3))*x(24)+rangeCoord(2,3)];
+
+tempArraySize = size(coordinates,1); % Prevent to go out of boundaries
+% % Remove blocks to allocate space for organ
+% i = 5;
+% while i <= tempArraySize
+%     if(coordinates(i,1) < coordinates(1,1) + 2 && ...
+%             coordinates(i,1) > coordinates(1,1) - 2 && ...
+%             coordinates(i,2) < coordinates(1,2) + 2 && ...
+%             coordinates(i,2) > coordinates(1,2) - 2 && ...
+%             coordinates(i,3) < coordinates(1,3) + 2 && ...
+%             coordinates(i,3) > coordinates(1,3) - 2)
+%         coordinates(i,:) = [];
+%         i = 5;
+%         tempArraySize = size(coordinates,1);
+%     else
+%         i = i + 1;
+%     end
+% end
+i = 5;
+while i <= tempArraySize
+    if(coordinates(i,1) < coordinates(1,1) + 1.5 && ...
+            coordinates(i,1) > coordinates(1,1) - 1.5 && ...
+            coordinates(i,2) < coordinates(1,2) + 4.5 && ...
+            coordinates(i,2) > coordinates(1,2) - 1 && ...
+            coordinates(i,3) < coordinates(1,3) + 1.5 && ...
+            coordinates(i,3) > coordinates(1,3) - 2)
+        coordinates(i,:) = [];
+        i = 5;
+        tempArraySize = size(coordinates,1);
+    else
+        i = i + 1;
+    end
+end
+i = 5;
+while i <= tempArraySize
+    if(coordinates(i,1) < coordinates(2,1) + 1.5 && ...
+            coordinates(i,1) > coordinates(2,1) - 1.5 && ...
+            coordinates(i,2) < coordinates(2,2) + 1 && ...
+            coordinates(i,2) > coordinates(2,2) - 4.5 && ...
+            coordinates(i,3) < coordinates(2,3) + 1.5 && ...
+            coordinates(i,3) > coordinates(2,3) - 1.5)
+        coordinates(i,:) = [];
+        i = 5;
+        tempArraySize = size(coordinates,1);
+    else
+        i = i + 1;
+    end
+end
+
+
+coordinates(3,:) = [1.5708 0 0];
+coordinates(4,:) = [1.5708 0 0];
